@@ -5,8 +5,8 @@
   "main": "openapi.yaml",
   "scripts": {
     "validate": "redocly lint openapi.yaml",
-    "docs:build": "redocly build-docs openapi.yaml --output docs/index.html",
-    "docs:serve": "redocly preview-docs openapi.yaml"
+    "build": "redocly build-docs openapi.yaml --output docs/index.html",
+    "serve": "redocly preview-docs openapi.yaml"
   },
   "author": "Hiroki Ando",
   "license": "MIT",

@@ -4,20 +4,11 @@
   "description": "OpenAPI 3.0 specification for LiveTable API server",
   "main": "openapi.yaml",
   "scripts": {
-    "validate": "swagger-parser validate openapi.yaml",
-    "docs:swagger": "swagger-ui-serve openapi.yaml",
-    "docs:redoc": "redoc-cli build openapi.yaml --output docs/index.html",
-    "docs:serve": "redoc-cli serve openapi.yaml",
+    "validate": "redocly lint openapi.yaml",
+    "docs:build": "redocly build-docs openapi.yaml --output docs/index.html",
+    "docs:serve": "redocly preview-docs openapi.yaml",
     "lint": "spectral lint openapi.yaml"
   },
-  "keywords": [
-    "openapi",
-    "api",
-    "specification",
-    "livetable",
-    "youtube",
-    "streaming"
-  ],
   "author": "Hiroki Ando",
   "license": "MIT",
   "repository": {
@@ -27,8 +18,6 @@
   "devDependencies": {
     "@apidevtools/swagger-parser": "^12.0.0",
     "@redocly/cli": "^1.34.4",
-    "@stoplight/spectral-cli": "^6.15.0",
-    "redoc-cli": "^0.13.21",
-    "swagger-ui-serve": "^0.0.4"
+    "@stoplight/spectral-cli": "^6.15.0"
   }
 }

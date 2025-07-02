@@ -9,29 +9,45 @@ info:
     name: LiveTable API Support
   license:
     name: MIT
+    url: https://opensource.org/licenses/MIT
 
 servers:
-  - url: http://localhost:3001/api
-    description: Development server
-  - url: https://api.livetable.example.com/api
+  - url: https://api.livetable.hirog.f5.si/api
     description: Production server
 
 security:
   - BearerAuth: []
 
 paths:
-  /users/email/{email}:
+  /users:
     get:
-      summary: Find user by email
-      description: Retrieve user information by email address
+      operationId: findUser
+      summary: Find user
+      description: Retrieve user information by email or UUID
       parameters:
         - name: email
-          in: path
-          required: true
+          in: query
+          required: false
           schema:
             type: string
             format: email
           example: user@example.com
+          description: Search by email address
+        - name: uuid
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+          description: Search by UUID
+        - name: include_data
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: Include related data (subscriptions, channels, videos)
       responses:
         "200":
           description: User found
@@ -42,6 +58,16 @@ paths:
                 properties:
                   user:
                     $ref: "#/components/schemas/User"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Either email or uuid parameter is required"
         "404":
           description: User not found
           content:
@@ -49,31 +75,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  user:
-                    type: null
-
-  /users/email/{email}/with-data:
-    get:
-      summary: Get user with all related data
-      description: Retrieve complete user data including subscriptions, channels, and videos
-      parameters:
-        - name: email
-          in: path
-          required: true
-          schema:
-            type: string
-            format: email
-          example: user@example.com
-      responses:
-        "200":
-          description: User data with related information
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserWithDataResponse"
+                  error:
+                    type: string
+                    example: "User not found"
 
   /users/{uuid}/google:
     get:
+      operationId: getUserGoogleProfile
       summary: Get Google user profile
       description: Retrieve Google-specific user profile information
       parameters:
@@ -91,9 +99,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GoogleUserResponse"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User not found"
 
   /users/{uuid}/subscriptions:
     get:
+      operationId: getUserSubscriptions
       summary: Get user subscriptions
       description: Retrieve all channel subscriptions for a user
       parameters:
@@ -111,9 +130,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SubscriptionsResponse"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User not found"
 
   /channels/{channelId}:
     get:
+      operationId: getChannelById
       summary: Get channel by ID
       description: Retrieve channel information by channel ID
       parameters:
@@ -140,11 +170,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  channel:
-                    type: null
+                  error:
+                    type: string
+                    example: "Channel not found"
 
   /channels/find-many:
     post:
+      operationId: findManyChannels
       summary: Find multiple channels by IDs
       description: Retrieve multiple channels by providing an array of channel IDs
       requestBody:
@@ -169,9 +201,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ChannelsResponse"
+        "400":
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "channelIds array is required and must not be empty"
 
   /videos/channel/{channelId}:
     get:
+      operationId: getVideosByChannelId
       summary: Get videos by channel ID
       description: Retrieve all videos for a specific channel
       parameters:
@@ -188,9 +231,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/VideosResponse"
+        "404":
+          description: Channel not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Channel not found"
 
   /videos/live-and-upcoming:
     post:
+      operationId: getLiveAndUpcomingVideos
       summary: Get live and upcoming videos
       description: Retrieve live and upcoming videos for multiple channels
       requestBody:
@@ -215,9 +269,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/VideosResponse"
+        "400":
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "channelIds array is required and must not be empty"
 
   /videos/{videoId}:
     get:
+      operationId: getVideoById
       summary: Get video by ID
       description: Retrieve video information by video ID
       parameters:
@@ -244,8 +309,9 @@ paths:
               schema:
                 type: object
                 properties:
-                  video:
-                    type: null
+                  error:
+                    type: string
+                    example: "Video not found"
 
 components:
   securitySchemes:
@@ -455,63 +521,4 @@ components:
                 - channels
                 - videos
 
-    Error:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-        message:
-          type: string
-          example: "An error occurred"
-        error:
-          type: string
-          example: "Detailed error information"
-      required:
-        - success
-        - message
 
-  responses:
-    UnauthorizedError:
-      description: Authentication information is missing or invalid
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
-          example:
-            success: false
-            message: "Unauthorized"
-            error: "Invalid or missing JWT token"
-
-    NotFoundError:
-      description: The specified resource was not found
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
-          example:
-            success: false
-            message: "Resource not found"
-            error: "The requested resource does not exist"
-
-    ValidationError:
-      description: Invalid input data
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
-          example:
-            success: false
-            message: "Validation error"
-            error: "Invalid email format"
-
-    ServerError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
-          example:
-            success: false
-            message: "Internal server error"
-            error: "An unexpected error occurred"

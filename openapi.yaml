@@ -24,7 +24,7 @@ paths:
       operationId: findUser
       summary: Find user
       description: Retrieve user information by email or UUID
-      parameters:
+      parameters: # TODO: jsonにしたい
         - name: email
           in: query
           required: false
@@ -58,7 +58,7 @@ paths:
                 properties:
                   user:
                     $ref: "#/components/schemas/User"
-        "400":
+        "400": # component化する
           description: Invalid parameters
           content:
             application/json:
@@ -79,11 +79,11 @@ paths:
                     type: string
                     example: "User not found"
 
-  /users/{uuid}/google:
+  /users/{uuid}/profile:
     get:
-      operationId: getUserGoogleProfile
-      summary: Get Google user profile
-      description: Retrieve Google-specific user profile information
+      operationId: getUserProfile
+      summary: Get user profile
+      description: Retrieve user profile information from OAuth providers
       parameters:
         - name: uuid
           in: path
@@ -174,26 +174,23 @@ paths:
                     type: string
                     example: "Channel not found"
 
-  /channels/find-many:
-    post:
-      operationId: findManyChannels
-      summary: Find multiple channels by IDs
-      description: Retrieve multiple channels by providing an array of channel IDs
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                channelIds:
-                  type: array
-                  items:
-                    type: string
-                  example:
-                    ["UC_vMYWcDjmfdpH6r4TTn1MQ", "UC0TXe_LYZ4scaW2XMyi5_kw"]
-              required:
-                - channelIds
+  /channels:
+    get:
+      operationId: getChannels
+      summary: Get channels
+      description: Retrieve single or multiple channels by IDs
+      parameters:
+        - name: ids
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          example: "UC_vMYWcDjmfdpH6r4TTn1MQ,UC0TXe_LYZ4scaW2XMyi5_kw"
+          description: Comma-separated channel IDs
       responses:
         "200":
           description: Channels found
@@ -212,10 +209,10 @@ paths:
                     type: string
                     example: "channelIds array is required and must not be empty"
 
-  /videos/channel/{channelId}:
+  /channels/{channelId}/videos:
     get:
-      operationId: getVideosByChannelId
-      summary: Get videos by channel ID
+      operationId: getChannelVideos
+      summary: Get channel videos
       description: Retrieve all videos for a specific channel
       parameters:
         - name: channelId
@@ -242,35 +239,59 @@ paths:
                     type: string
                     example: "Channel not found"
 
-  /videos/live-and-upcoming:
-    post:
-      operationId: getLiveAndUpcomingVideos
-      summary: Get live and upcoming videos
-      description: Retrieve live and upcoming videos for multiple channels
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                channelIds:
-                  type: array
-                  items:
-                    type: string
-                  example:
-                    ["UC_vMYWcDjmfdpH6r4TTn1MQ", "UC0TXe_LYZ4scaW2XMyi5_kw"]
-              required:
-                - channelIds
+  /videos:
+    get:
+      operationId: getVideos
+      summary: Get videos
+      description: Retrieve videos with filtering options
+      parameters:
+        - name: channels
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          example: "UC_vMYWcDjmfdpH6r4TTn1MQ,UC0TXe_LYZ4scaW2XMyi5_kw"
+          description: Comma-separated channel IDs
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [live, upcoming, completed, none]
+          style: form
+          explode: false
+          example: "live,upcoming"
+          description: Video status filter
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+          description: Maximum number of results
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Offset for pagination
       responses:
         "200":
-          description: Live and upcoming videos
+          description: Videos matching filters
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/VideosResponse"
         "400":
-          description: Invalid request body
+          description: Invalid filter parameters
           content:
             application/json:
               schema:
@@ -278,7 +299,7 @@ paths:
                 properties:
                   error:
                     type: string
-                    example: "channelIds array is required and must not be empty"
+                    example: "Invalid filter parameters"
 
   /videos/{videoId}:
     get:
@@ -302,7 +323,7 @@ paths:
                 properties:
                   video:
                     $ref: "#/components/schemas/Video"
-        "404":
+        "404": # component化する
           description: Video not found
           content:
             application/json:
@@ -520,5 +541,3 @@ components:
                 - subscriptions
                 - channels
                 - videos
-
-

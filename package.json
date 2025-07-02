@@ -1,0 +1,27 @@
+{
+  "name": "livetable-api-spec",
+  "version": "0.0.0",
+  "description": "OpenAPI 3.0 specification for LiveTable API server",
+  "main": "openapi.yaml",
+  "scripts": {
+    "validate": "swagger-parser validate openapi.yaml",
+    "docs:swagger": "swagger-ui-serve openapi.yaml",
+    "docs:redoc": "redoc-cli build openapi.yaml --output docs/index.html",
+    "docs:serve": "redoc-cli serve openapi.yaml",
+    "lint": "spectral lint openapi.yaml"
+  },
+  "keywords": [
+    "openapi",
+    "api",
+    "specification",
+    "livetable",
+    "youtube",
+    "streaming"
+  ],
+  "author": "Hiroki Ando",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hikuohiku/livetable-api-spec.git"
+  }
+}

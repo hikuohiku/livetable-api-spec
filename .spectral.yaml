@@ -1,0 +1,37 @@
+extends: ["@stoplight/spectral/dist/rulesets/oas"]
+
+rules:
+  # Custom rules for LiveTable API
+  operation-description: true
+  operation-operationId: true
+  operation-summary: true
+  operation-tags: false # Allow operations without tags for simplicity
+
+  # Ensure all responses have descriptions
+  operation-success-response: true
+
+  # Security requirements
+  openapi-tags: false
+  info-contact: true
+  info-description: true
+  info-license: true
+
+  # Custom rule for consistent response format
+  consistent-response-body:
+    description: Responses should follow consistent format
+    severity: warn
+    given: "$.paths.*[?(@property === 'get' || @property === 'post' || @property === 'put' || @property === 'delete')]..responses[?(@property.match(/^2/))].content.application/json.schema"
+    then:
+      field: "properties"
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          required: ["success"]
+          properties:
+            success:
+              type: boolean
+            data:
+              type: [object, array]
+            message:
+              type: string

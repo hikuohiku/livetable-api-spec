@@ -1,96 +1,143 @@
-# LiveTable API Specification
+# LiveTable API 仕様書
 
-This repository contains the OpenAPI 3.0 specification for the LiveTable API server.
+LiveTable API サーバーの OpenAPI 3.0 仕様書です。
 
-## Overview
+## 概要
 
-LiveTable is a YouTube live stream timetable application with a polyrepo architecture:
+LiveTable は YouTube ライブ配信タイムテーブルアプリケーションのポリレポ構成です：
 
-- **Frontend**: Next.js application (separate repository)
-- **Backend**: API server (separate repository)
-- **API Spec**: This repository - shared specification
+- **フロントエンド**: Next.js アプリケーション（別リポジトリ）
+- **バックエンド**: API サーバー（別リポジトリ）
+- **API 仕様**: このリポジトリ - 共有仕様書
 
-## API Specification
+## API 仕様書
 
-The API specification is defined in OpenAPI 3.0 format and describes all endpoints, request/response schemas, and authentication requirements for the LiveTable API server.
+LiveTable API サーバーの全エンドポイント、リクエスト/レスポンススキーマ、認証要件を OpenAPI 3.0 形式で定義しています。
 
-### Key Features
+### 主な機能
 
-- JWT Bearer token authentication via NextAuth
-- User management with Google OAuth integration
-- YouTube channel subscription management
-- Live stream and video data endpoints
-- Comprehensive error handling
+- NextAuth による JWT Bearer トークン認証
+- Google OAuth 連携によるユーザー管理
+- YouTube チャンネル購読管理
+- ライブ配信・動画データエンドポイント
+- 包括的なエラーハンドリング
 
-### Endpoints Overview
+### エンドポイント概要
 
-- **User Management**: User lookup, Google OAuth data, subscriptions
-- **Channel Management**: Channel information and bulk operations
-- **Video Management**: Live streams, upcoming videos, video details
+- **ユーザー管理**: ユーザー検索、Google OAuth データ、購読情報
+- **チャンネル管理**: チャンネル情報と一括操作
+- **動画管理**: ライブ配信、配信予定、動画詳細
 
-## Files
+## ファイル構成
 
-- `openapi.yaml` - Complete OpenAPI 3.0 specification
-- `schemas/` - Individual schema definitions (if needed for modular approach)
-- `examples/` - Request/response examples
-- `docs/` - Generated documentation
+- `openapi.yaml` - 完全な OpenAPI 3.0 仕様書
+- `examples/` - リクエスト/レスポンス例
+- `docs/` - 生成されたドキュメント
+- `.github/workflows/` - CI/CD パイプライン
 
-## Usage
+## ドキュメント
 
-### For Frontend Developers
+### 🌐 オンラインドキュメント
 
-Use this specification to understand expected API contracts and implement API client services.
+**[📖 API ドキュメントを見る](https://hikuohiku.github.io/livetable-api-spec/)**
 
-### For Backend Developers
+GitHub Pages で自動生成・更新されるドキュメントサイトです。
 
-Implement the API server according to this specification to ensure compatibility with the frontend.
+### 📋 利用方法
 
-### Generating Documentation
+#### フロントエンド開発者向け
+
+この仕様書を参照して API クライアントサービスを実装してください。
+
+#### バックエンド開発者向け
+
+この仕様書に従って API サーバーを実装し、フロントエンドとの互換性を確保してください。
+
+## 開発
+
+### 前提条件
+
+- Node.js (latest)
+- pnpm
+
+### セットアップ
 
 ```bash
-# Using Swagger UI
-npx swagger-ui-serve openapi.yaml
-
-# Using Redoc
-npx redoc-cli build openapi.yaml --output docs/index.html
+# リポジトリをクローン
+git clone https://github.com/hikuohiku/livetable-api-spec.git
+cd livetable-api-spec
 ```
 
-### Validation
+### 利用可能なコマンド
 
 ```bash
-# Validate the OpenAPI spec
-npx swagger-parser validate openapi.yaml
+# OpenAPI 仕様書の検証
+pnpm validate
+
+# ドキュメントの生成
+pnpm build
+
+# ローカルでドキュメントをプレビュー
+pnpm serve
 ```
 
-## Development Workflow
+### ローカル開発
 
-1. **Specification Changes**: Update `openapi.yaml` first
-2. **Review Process**: All changes require review from both frontend and backend teams
-3. **Implementation**: Backend and frontend implement changes based on updated spec
-4. **Testing**: Ensure implementations match the specification
+```bash
+# 仕様書の検証
+pnpm validate
 
-## Versioning
+# ドキュメントをローカルでプレビュー（ホットリロード対応）
+pnpm serve
+```
 
-This project follows semantic versioning:
+## CI/CD
 
-- **Major**: Breaking changes to existing endpoints
-- **Minor**: New endpoints or backward-compatible changes
-- **Patch**: Documentation fixes, clarifications
+### 自動化された処理
 
-## Integration
+- **CI**: プルリクエスト・プッシュ時に仕様書の検証
+- **CD**: `main` ブランチの `openapi.yaml` 変更時に GitHub Pages へ自動デプロイ
 
-### With Frontend (Next.js)
+### ローカルテスト
 
-Frontend TypeScript types and API client can be generated from this specification.
+```bash
+# GitHub Actions をローカルで実行（要 act）
+act --container-architecture linux/amd64 -W .github/workflows/ci.yml
+```
 
-### With Backend
+## 開発ワークフロー
 
-Backend validation and route generation can use this specification.
+1. **仕様変更**: `openapi.yaml` を最初に更新
+2. **レビュー**: フロントエンド・バックエンド両チームによるレビュー
+3. **実装**: 更新された仕様書に基づいて実装
+4. **テスト**: 実装が仕様書と一致することを確認
 
-## Contributing
+## バージョニング
 
-1. Create a feature branch
-2. Update the OpenAPI specification
-3. Add examples if introducing new endpoints
-4. Update this README if needed
-5. Create pull request with changes reviewed by both teams
+このプロジェクトはセマンティックバージョニングに従います：
+
+- **Major**: 既存エンドポイントへの破壊的変更
+- **Minor**: 新エンドポイントまたは後方互換性のある変更
+- **Patch**: ドキュメント修正、説明の改善
+
+## 統合
+
+### フロントエンド（Next.js）との統合
+
+この仕様書から TypeScript 型定義と API クライアントを自動生成できます。
+
+### バックエンドとの統合
+
+この仕様書を使用してバックエンドの検証とルート生成が可能です。
+
+## コントリビュート
+
+1. フィーチャーブランチを作成
+2. OpenAPI 仕様書を更新
+3. 新しいエンドポイントを追加する場合は例も追加
+4. 必要に応じて README を更新
+5. 両チームによるレビューを受けてプルリクエストを作成
+
+## ライセンス
+
+MIT License

@@ -4,7 +4,7 @@ info:
   description: |
     API server for LiveTable application that provides YouTube live stream management functionality.
     This API handles user authentication, channel subscriptions, and video/stream data.
-  version: 1.0.0
+  version: 0.0.0
   contact:
     name: LiveTable API Support
   license:

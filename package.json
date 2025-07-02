@@ -6,8 +6,7 @@
   "scripts": {
     "validate": "redocly lint openapi.yaml",
     "docs:build": "redocly build-docs openapi.yaml --output docs/index.html",
-    "docs:serve": "redocly preview-docs openapi.yaml",
-    "lint": "spectral lint openapi.yaml"
+    "docs:serve": "redocly preview-docs openapi.yaml"
   },
   "author": "Hiroki Ando",
   "license": "MIT",
@@ -17,7 +16,6 @@
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^12.0.0",
-    "@redocly/cli": "^1.34.4",
-    "@stoplight/spectral-cli": "^6.15.0"
+    "@redocly/cli": "^1.34.4"
   }
 }

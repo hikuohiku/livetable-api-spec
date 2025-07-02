@@ -1,0 +1,4 @@
+onlyBuiltDependencies:
+  - '@scarf/scarf'
+  - core-js
+  - protobufjs

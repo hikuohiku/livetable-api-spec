@@ -24,7 +24,7 @@ paths:
       operationId: findUser
       summary: Find user
       description: Retrieve user information by email or UUID
-      parameters: # TODO: jsonにしたい
+      parameters:
         - name: email
           in: query
           required: false
@@ -47,37 +47,23 @@ paths:
           schema:
             type: boolean
             default: false
-          description: Include related data (subscriptions, channels, videos)
+          description: Include related data (subscriptions, videos)
       responses:
         "200":
           description: User found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  user:
-                    $ref: "#/components/schemas/User"
-        "400": # component化する
-          description: Invalid parameters
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Either email or uuid parameter is required"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "404":
-          description: User not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "User not found"
+          $ref: "#/components/responses/NotFound"
 
   /users/{uuid}/profile:
     get:
@@ -94,21 +80,13 @@ paths:
           example: 123e4567-e89b-12d3-a456-426614174000
       responses:
         "200":
-          description: Google user profile
+          description: User profile
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/GoogleUserResponse"
         "404":
-          description: User not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "User not found"
+          $ref: "#/components/responses/NotFound"
 
   /users/{uuid}/subscriptions:
     get:
@@ -131,15 +109,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/SubscriptionsResponse"
         "404":
-          description: User not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "User not found"
+          $ref: "#/components/responses/NotFound"
 
   /channels/{channelId}:
     get:
@@ -164,15 +134,7 @@ paths:
                   channel:
                     $ref: "#/components/schemas/Channel"
         "404":
-          description: Channel not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Channel not found"
+          $ref: "#/components/responses/NotFound"
 
   /channels:
     get:
@@ -199,15 +161,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ChannelsResponse"
         "400":
-          description: Invalid request body
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "channelIds array is required and must not be empty"
+          $ref: "#/components/responses/BadRequest"
 
   /channels/{channelId}/videos:
     get:
@@ -229,15 +183,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/VideosResponse"
         "404":
-          description: Channel not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Channel not found"
+          $ref: "#/components/responses/NotFound"
 
   /videos:
     get:
@@ -291,15 +237,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/VideosResponse"
         "400":
-          description: Invalid filter parameters
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Invalid filter parameters"
+          $ref: "#/components/responses/BadRequest"
 
   /videos/{videoId}:
     get:
@@ -323,16 +261,8 @@ paths:
                 properties:
                   video:
                     $ref: "#/components/schemas/Video"
-        "404": # component化する
-          description: Video not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Video not found"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
 components:
   securitySchemes:
@@ -341,6 +271,47 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: JWT token obtained from NextAuth authentication
+
+  responses:
+    BadRequest:
+      description: Invalid parameters
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: "Bad Request"
+              error:
+                type: string
+                example: "Invalid parameters"
+            required:
+              - success
+              - error
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: "Not Found"
+              error:
+                type: string
+                example: "Resource not found"
+            required:
+              - success
+              - error
 
   schemas:
     ApiResponse:
